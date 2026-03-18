@@ -80,7 +80,7 @@ Per qualsiasi domanda rispondi ESATTAMENTE con questo testo:
 "{CONTACT_FALLBACK}"
 Rispondi sempre in italiano."""
     response = client.messages.create(
-        model="claude-sonnet-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=1024,
         system=system_prompt,
         messages=[{"role": "user", "content": user_message}]
