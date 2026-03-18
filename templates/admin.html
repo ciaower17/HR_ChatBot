@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pannello Admin — HR Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--surface:#181c27;--surface2:#1e2335;--border:#2a2f45;--accent:#4f7fff;--accent-soft:rgba(79,127,255,0.12);--text:#e8eaf2;--text-muted:#7a7f9a;--text-dim:#3d4260;--success:#3ecf8e;--success-soft:rgba(62,207,142,0.1);--danger:#e25c5c;--danger-soft:rgba(226,92,92,0.1);--warning:#f5a623;--font:'DM Sans',sans-serif;--radius:12px;--radius-sm:8px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:32px;height:32px;background:var(--warning);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#1a0f00}
+.logo-text{font-size:15px;font-weight:600}
+.logo-sub{font-size:11px;color:var(--text-muted)}
+.back-link{font-size:13px;color:var(--text-muted);text-decoration:none;padding:7px 14px;border:1px solid var(--border);border-radius:6px;transition:all 0.2s}
+.back-link:hover{color:var(--text);border-color:var(--accent);background:var(--accent-soft)}
+.page{max-width:900px;margin:0 auto;padding:40px 32px}
+.page-title{font-size:24px;font-weight:600;letter-spacing:-0.4px;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text-muted);margin-bottom:36px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:600;letter-spacing:-0.5px}
+.stat-value.accent{color:var(--accent)}.stat-value.success{color:var(--success)}.stat-value.warning{color:var(--warning)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;overflow:hidden}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:600}
+.card-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.card-body{padding:24px}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:var(--accent-soft)}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-text{font-size:15px;font-weight:500;margin-bottom:6px}
+.drop-hint{font-size:12px;color:var(--text-muted)}
+.upload-btn{margin-top:20px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s}
+.upload-btn:hover{background:#3d6ee8}
+.upload-btn:disabled{background:var(--border);cursor:not-allowed}
+.upload-status{margin-top:14px;font-size:13px;padding:10px 14px;border-radius:var(--radius-sm);display:none}
+.upload-status.success{background:var(--success-soft);color:var(--success);border:1px solid rgba(62,207,142,0.2)}
+.upload-status.error{background:var(--danger-soft);color:var(--danger);border:1px solid rgba(226,92,92,0.2)}
+.file-table{width:100%;border-collapse:collapse}
+.file-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-dim);padding:0 12px 12px}
+.file-row{border-top:1px solid var(--border);transition:background 0.15s}
+.file-row:hover{background:var(--surface2)}
+.file-row td{padding:14px 12px;font-size:13px;vertical-align:middle}
+.file-name{display:flex;align-items:center;gap:10px}
+.file-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.file-icon.pdf{background:rgba(226,92,92,0.15)}.file-icon.txt{background:rgba(79,127,255,0.15)}
+.file-size,.file-date{color:var(--text-muted);font-size:11px}
+.del-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text-muted);font-size:11px;cursor:pointer;transition:all 0.18s;font-family:var(--font)}
+.del-btn:hover{background:var(--danger-soft);border-color:var(--danger);color:var(--danger)}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:14px}
+.history-list{display:flex;flex-direction:column;gap:12px}
+.history-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.history-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.history-time{font-size:10px;color:var(--text-dim)}
+.history-q{font-size:13px;font-weight:500;margin-bottom:4px}
+.history-a{font-size:12px;color:var(--text-muted);line-height:1.5}
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.badge.fallback{background:rgba(245,166,35,0.15);color:var(--warning)}
+.badge.answered{background:var(--success-soft);color:var(--success)}
+.refresh-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font)}
+.refresh-btn:hover{color:var(--text);border-color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-mark">⚙</div>
+    <div><div class="logo-text">Pannello Amministratore</div><div class="logo-sub">Gestione knowledge base</div></div>
+  </div>
+  <a href="/" class="back-link">← Torna alla chat</a>
+</header>
+<div class="page">
+  <div class="page-title">Gestione documenti aziendali</div>
+  <div class="page-sub">Carica i documenti HR che l'assistente userà per rispondere ai dipendenti.</div>
+  <div class="stats">
+    <div class="stat-card"><div class="stat-label">Documenti caricati</div><div class="stat-value accent" id="stat-docs">—</div></div>
+    <div class="stat-card"><div class="stat-label">Conversazioni registrate</div><div class="stat-value success" id="stat-chats">—</div></div>
+    <div class="stat-card"><div class="stat-label">Formati supportati</div><div class="stat-value warning">PDF, TXT</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Carica nuovo documento</div><div class="card-sub">Disponibile subito per l'assistente</div></div>
+    </div>
+    <div class="card-body">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf,.txt" onchange="handleFileSelect(this)">
+        <div style="font-size:36px;margin-bottom:12px">📄</div>
+        <div class="drop-text">Trascina un file qui o clicca per scegliere</div>
+        <div class="drop-hint">Formati accettati: PDF, TXT</div>
+      </div>
+      <div id="selectedFile" style="margin-top:12px;font-size:13px;color:var(--text-muted);display:none"></div>
+      <button class="upload-btn" id="uploadBtn" onclick="uploadFile()" disabled>Carica documento</button>
+      <div class="upload-status" id="uploadStatus"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Documenti nella knowledge base</div><div class="card-sub">File disponibili per l'assistente</div></div>
+      <button class="refresh-btn" onclick="loadDocuments()">↻ Aggiorna</button>
+    </div>
+    <div class="card-body" style="padding:0"><div id="docList"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Ultime conversazioni</div><div class="card-sub">Storico domande dei dipendenti</div></div>
+    </div>
+    <div class="card-body"><div class="history-list" id="historyList"></div></div>
+  </div>
+</div>
+<script>
+const FALLBACK=['non ho trovato','hr@azienda.it','02 1234567'];
+function isFallback(t){return FALLBACK.some(p=>t.toLowerCase().includes(p))}
+function formatBytes(b){if(b<1024)return b+' B';if(b<1024*1024)return(b/1024).toFixed(1)+' KB';return(b/(1024*1024)).toFixed(1)+' MB'}
+async function loadDocuments(){
+  const res=await fetch('/api/documents');
+  const data=await res.json();
+  const docs=data.documents||[];
+  document.getElementById('stat-docs').textContent=docs.length;
+  const container=document.getElementById('docList');
+  if(!docs.length){container.innerHTML=`<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">📂</div>Nessun documento caricato.<br>Carica un PDF o TXT per iniziare.</div>`;return}
+  container.innerHTML=`<table class="file-table"><thead><tr><th>File</th><th>Dimensione</th><th>Caricato il</th><th></th></tr></thead><tbody>${docs.map(f=>{const ext=f.name.split('.').pop().toLowerCase();const icon=ext==='pdf'?'📕':'📝';return`<tr class="file-row"><td><div class="file-name"><div class="file-icon ${ext}">${icon}</div><span style="font-weight:500">${f.name}</span></div></td><td><span class="file-size">${formatBytes(f.size)}</span></td><td><span class="file-date">${f.modified}</span></td><td><button class="del-btn" onclick="deleteFile('${f.name}')">Elimina</button></td></tr>`}).join('')}</tbody></table>`
+}
+async function deleteFile(name){
+  if(!confirm(`Eliminare "${name}"?`))return;
+  await fetch(`/api/documents/${encodeURIComponent(name)}`,{method:'DELETE'});
+  loadDocuments();
+}
+async function loadHistory(){
+  const res=await fetch('/api/history');
+  const data=await res.json();
+  const history=(data.history||[]).slice(-10).reverse();
+  document.getElementById('stat-chats').textContent=data.history?.length||0;
+  const container=document.getElementById('historyList');
+  if(!history.length){container.innerHTML=`<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">💬</div>Nessuna conversazione ancora.</div>`;return}
+  container.innerHTML=history.map(item=>{
+    const fallback=isFallback(item.bot);
+    const date=new Date(item.timestamp).toLocaleString('it-IT');
+    const preview=item.bot.length>120?item.bot.substring(0,120)+'…':item.bot;
+    return`<div class="history-item"><div class="history-meta"><span class="history-time">${date}</span><span class="badge ${fallback?'fallback':'answered'}">${fallback?'Non trovato':'Risposto'}</span></div><div class="history-q">❓ ${item.user}</div><div class="history-a">🤖 ${preview}</div></div>`
+  }).join('')
+}
+let selectedFile=null;
+function handleFileSelect(input){
+  selectedFile=input.files[0];
+  const btn=document.getElementById('uploadBtn');
+  const info=document.getElementById('selectedFile');
+  if(selectedFile){btn.disabled=false;info.style.display='block';info.textContent=`Selezionato: ${selectedFile.name} (${formatBytes(selectedFile.size)})`}
+}
+async function uploadFile(){
+  if(!selectedFile)return;
+  const btn=document.getElementById('uploadBtn');
+  const status=document.getElementById('uploadStatus');
+  btn.disabled=true;btn.textContent='Caricamento...';
+  const form=new FormData();form.append('file',selectedFile);
+  try{
+    const res=await fetch('/api/upload',{method:'POST',body:form});
+    const data=await res.json();
+    status.style.display='block';
+    if(res.ok){status.className='upload-status success';status.textContent='✓ '+data.message;selectedFile=null;document.getElementById('fileInput').value='';document.getElementById('selectedFile').style.display='none';loadDocuments()}
+    else{status.className='upload-status error';status.textContent='✗ '+data.error}
+  }catch(e){status.className='upload-status error';status.textContent='✗ Errore di connessione.'}
+  btn.textContent='Carica documento';btn.disabled=!selectedFile;
+}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f){document.getElementById('fileInput').files=e.dataTransfer.files;handleFileSelect(document.getElementById('fileInput'))}});
+loadDocuments();loadHistory();
+</script>
+</body>
+</html>
