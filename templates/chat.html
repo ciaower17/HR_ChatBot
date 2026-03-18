@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistente HR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--surface:#181c27;--surface2:#1e2335;--border:#2a2f45;--accent:#4f7fff;--accent-soft:rgba(79,127,255,0.12);--text:#e8eaf2;--text-muted:#7a7f9a;--text-dim:#3d4260;--success:#3ecf8e;--warning:#f5a623;--font:'DM Sans',sans-serif;--radius:12px;--radius-sm:8px}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white}
+.logo-text{font-size:15px;font-weight:600}
+.logo-sub{font-size:11px;color:var(--text-muted)}
+.status-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.admin-link{font-size:12px;color:var(--text-muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:6px;transition:all 0.2s}
+.admin-link:hover{color:var(--text);border-color:var(--accent);background:var(--accent-soft)}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;padding:20px 14px;gap:6px}
+.sidebar-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:0 8px;margin-bottom:4px}
+.quick-btn{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text-muted);font-family:var(--font);font-size:12px;text-align:left;cursor:pointer;transition:all 0.18s;line-height:1.4}
+.quick-btn:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--text)}
+.quick-btn::before{content:'→ ';color:var(--accent);font-weight:600}
+.new-chat-btn{margin-top:auto;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;color:var(--accent);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;text-align:center}
+.new-chat-btn:hover{background:var(--accent);color:white}
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.messages{flex:1;overflow-y:auto;padding:32px 40px;display:flex;flex-direction:column;gap:24px}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.welcome{text-align:center;padding:60px 20px;animation:fadeUp 0.5s ease}
+.welcome h2{font-size:22px;font-weight:600;margin-bottom:10px}
+.welcome p{font-size:14px;color:var(--text-muted);line-height:1.6;max-width:440px;margin:0 auto}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.message{display:flex;gap:12px;animation:fadeUp 0.3s ease;max-width:760px}
+.message.user{align-self:flex-end;flex-direction:row-reverse}
+.avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:2px}
+.message.bot .avatar{background:var(--accent);color:white}
+.message.user .avatar{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted)}
+.bubble{padding:12px 16px;border-radius:var(--radius);font-size:14px;line-height:1.65;max-width:600px}
+.message.bot .bubble{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-top-left-radius:4px}
+.message.user .bubble{background:var(--accent);color:white;border-top-right-radius:4px}
+.bubble.fallback{border-color:var(--warning);background:rgba(245,166,35,0.06)}
+.fallback-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--warning);margin-bottom:6px}
+.message-time{font-size:10px;color:var(--text-dim);margin-top:4px}
+.message.user .message-time{text-align:right}
+.typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:typing 1.2s infinite}
+.typing span:nth-child(2){animation-delay:0.2s}
+.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes typing{0%,80%,100%{transform:scale(0.7);opacity:0.4}40%{transform:scale(1);opacity:1}}
+.input-area{padding:20px 40px 28px;background:var(--bg);border-top:1px solid var(--border);flex-shrink:0}
+.input-wrap{display:flex;gap:10px;align-items:flex-end;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;transition:border-color 0.2s}
+.input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,127,255,0.15)}
+textarea{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:14px;resize:none;min-height:22px;max-height:120px;line-height:1.5}
+textarea::placeholder{color:var(--text-dim)}
+.send-btn{width:36px;height:36px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;flex-shrink:0}
+.send-btn:hover{background:#3d6ee8}
+.send-btn:disabled{background:var(--border);cursor:not-allowed}
+.send-btn svg{width:16px;height:16px;fill:white}
+.input-hint{font-size:11px;color:var(--text-dim);margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-mark">HR</div>
+    <div><div class="logo-text">Portale Dipendenti</div><div class="logo-sub">Assistente virtuale aziendale</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="status-dot"><div class="dot"></div>Online</div>
+    <a href="/admin" class="admin-link">Pannello Admin →</a>
+  </div>
+</header>
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-title">Domande frequenti</div>
+    <button class="quick-btn" onclick="sendQuick('Come posso richiedere le ferie?')">Richiedere le ferie</button>
+    <button class="quick-btn" onclick="sendQuick('Come mi metto in malattia?')">Procedura malattia</button>
+    <button class="quick-btn" onclick="sendQuick('Come funziona il rimborso spese?')">Rimborso spese</button>
+    <button class="quick-btn" onclick="sendQuick('Quali sono gli orari di lavoro?')">Orari di lavoro</button>
+    <button class="quick-btn" onclick="sendQuick('Come richiedo un permesso?')">Richiedere permessi</button>
+    <button class="quick-btn" onclick="sendQuick('Come funziona la busta paga?')">Busta paga</button>
+    <button class="new-chat-btn" onclick="clearChat()">+ Nuova conversazione</button>
+  </aside>
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div style="font-size:48px;margin-bottom:16px">💬</div>
+        <h2>Come posso aiutarti?</h2>
+        <p>Sono l'assistente virtuale HR. Puoi chiedermi informazioni su ferie, malattie, permessi, rimborsi e qualsiasi altra procedura aziendale.</p>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="input" placeholder="Scrivi la tua domanda..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="input-hint">Premi Invio per inviare · Shift+Invio per andare a capo</div>
+    </div>
+  </div>
+</div>
+<script>
+const messagesEl=document.getElementById('messages');
+const inputEl=document.getElementById('input');
+const sendBtn=document.getElementById('sendBtn');
+let isLoading=false;
+const FALLBACK=['non ho trovato','hr@azienda.it','02 1234567'];
+function isFallback(t){return FALLBACK.some(p=>t.toLowerCase().includes(p))}
+function now(){return new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}
+function hideWelcome(){const w=document.getElementById('welcome');if(w)w.remove()}
+function appendMessage(role,text){
+  const msg=document.createElement('div');
+  msg.className=`message ${role}`;
+  const fallback=role==='bot'&&isFallback(text);
+  msg.innerHTML=`<div class="avatar">${role==='bot'?'HR':'Tu'}</div><div><div class="bubble${fallback?' fallback':''}">${fallback?'<div class="fallback-label">⚠ Informazione non disponibile</div>':''}${text.replace(/\n/g,'<br>')}</div><div class="message-time">${now()}</div></div>`;
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop=messagesEl.scrollHeight;
+}
+function showTyping(){const el=document.createElement('div');el.className='message bot';el.id='typing';el.innerHTML=`<div class="avatar">HR</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;messagesEl.appendChild(el);messagesEl.scrollTop=messagesEl.scrollHeight}
+function hideTyping(){const el=document.getElementById('typing');if(el)el.remove()}
+async function sendMessage(){
+  const text=inputEl.value.trim();
+  if(!text||isLoading)return;
+  isLoading=true;sendBtn.disabled=true;inputEl.value='';autoResize(inputEl);hideWelcome();
+  appendMessage('user',text);showTyping();
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+    const data=await res.json();hideTyping();appendMessage('bot',data.reply||'Errore nella risposta.');
+  }catch(e){hideTyping();appendMessage('bot','Errore di connessione. Riprova più tardi.')}
+  isLoading=false;sendBtn.disabled=false;inputEl.focus();
+}
+function sendQuick(text){inputEl.value=text;sendMessage()}
+function clearChat(){messagesEl.innerHTML=`<div class="welcome" id="welcome"><div style="font-size:48px;margin-bottom:16px">💬</div><h2>Come posso aiutarti?</h2><p>Sono l'assistente virtuale HR. Puoi chiedermi informazioni su ferie, malattie, permessi, rimborsi e qualsiasi altra procedura aziendale.</p></div>`}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
+</script>
+</body>
+</html>
