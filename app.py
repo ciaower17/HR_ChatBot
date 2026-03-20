@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 import anthropic
 import os
@@ -7,10 +7,15 @@ import datetime
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = "cambia-questa-chiave-segreta-123"
 
 UPLOAD_FOLDER = "uploads"
 HISTORY_FILE = "chat_history.json"
 CONTACT_FALLBACK = "Non ho trovato informazioni su questo argomento nei documenti aziendali. Per assistenza contatta l'amministrazione al numero 02 1234567 oppure scrivi a hr@azienda.it"
+
+# Credenziali admin — modificale come vuoi
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "techsolutions2024"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
@@ -49,13 +54,36 @@ def load_history():
             return json.load(f)
     return []
 
+def is_admin():
+    return session.get("admin_logged_in") == True
+
 @app.route("/")
 def index():
     return render_template("chat.html")
 
 @app.route("/admin")
 def admin():
+    if not is_admin():
+        return redirect(url_for("admin_login"))
     return render_template("admin.html")
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin"))
+        else:
+            error = "Credenziali non valide. Riprova."
+    return render_template("login.html", error=error)
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("admin_login"))
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -91,6 +119,8 @@ Rispondi sempre in italiano."""
 
 @app.route("/api/upload", methods=["POST"])
 def upload():
+    if not is_admin():
+        return jsonify({"error": "Non autorizzato"}), 401
     if "file" not in request.files:
         return jsonify({"error": "Nessun file inviato"}), 400
     file = request.files["file"]
@@ -104,6 +134,8 @@ def upload():
 
 @app.route("/api/documents", methods=["GET"])
 def list_documents():
+    if not is_admin():
+        return jsonify({"error": "Non autorizzato"}), 401
     files = []
     for filename in os.listdir(UPLOAD_FOLDER):
         filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -114,6 +146,8 @@ def list_documents():
 
 @app.route("/api/documents/<filename>", methods=["DELETE"])
 def delete_document(filename):
+    if not is_admin():
+        return jsonify({"error": "Non autorizzato"}), 401
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     if not os.path.exists(filepath):
         return jsonify({"error": "File non trovato"}), 404
@@ -122,6 +156,8 @@ def delete_document(filename):
 
 @app.route("/api/history", methods=["GET"])
 def history():
+    if not is_admin():
+        return jsonify({"error": "Non autorizzato"}), 401
     return jsonify({"history": load_history()})
 
 if __name__ == "__main__":

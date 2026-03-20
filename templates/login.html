@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accesso Admin — HR Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--surface:#181c27;--border:#2a2f45;--accent:#4f7fff;--accent-soft:rgba(79,127,255,0.12);--text:#e8eaf2;--text-muted:#7a7f9a;--danger:#e25c5c;--danger-soft:rgba(226,92,92,0.08);--warning:#f5a623;--font:'DM Sans',sans-serif;--radius:12px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;width:100%;max-width:380px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-mark{width:48px;height:48px;background:var(--warning);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1a0f00;margin:0 auto 12px}
+.logo-title{font-size:18px;font-weight:600}
+.logo-sub{font-size:13px;color:var(--text-muted);margin-top:4px}
+.field{margin-bottom:18px}
+label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.6px}
+input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.2s}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,127,255,0.15)}
+.btn{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:background 0.18s;margin-top:8px}
+.btn:hover{background:#3d6ee8}
+.error{background:var(--danger-soft);border:1px solid rgba(226,92,92,0.2);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:20px;text-align:center}
+.back{text-align:center;margin-top:20px;font-size:13px;color:var(--text-muted)}
+.back a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">⚙</div>
+    <div class="logo-title">Pannello Amministratore</div>
+    <div class="logo-sub">Accesso riservato al personale HR</div>
+  </div>
+  {% if error %}
+  <div class="error">⚠ {{ error }}</div>
+  {% endif %}
+  <form method="POST">
+    <div class="field">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Inserisci username" autofocus required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Inserisci password" required>
+    </div>
+    <button type="submit" class="btn">Accedi</button>
+  </form>
+  <div class="back"><a href="/">← Torna alla chat dipendenti</a></div>
+</div>
+</body>
+</html>
